@@ -24,7 +24,7 @@ Mdb.prototype.toCSV = function(table, cb) {
 }
 
 Mdb.prototype.toSQL = function(table, cb) {
-  var cmd = spawn('mdb-export', ['-I -R ;\r\n', this.file, table])
+  var cmd = spawn('mdb-export', ['-I', 'sqlite', this.file, table])
   cmd.stdout.pipe(
     concat(function(err, out) {
       if (err) return cb(err)
@@ -43,6 +43,18 @@ Mdb.prototype.tables = function(cb) {
       if (!out) return cb('no output')
       var tables = out.toString().replace(/,\n$/, '').split(self.tableDelimiter)
       cb(false, tables)
+    })
+  )
+}
+
+Mdb.prototype.schema = function(cb) {
+  var self = this
+  var cmd = spawn('mdb-schema', [this.file, 'sqlite'])
+  cmd.stdout.pipe(
+    concat(function(err, out) {
+      if (err) return cb(err.toString())
+      if (!out) return cb('no output')
+      cb(false, out.toString())
     })
   )
 }
